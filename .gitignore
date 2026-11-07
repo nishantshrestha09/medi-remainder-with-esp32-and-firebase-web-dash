@@ -1,0 +1,14 @@
+# Secrets
+secrets.h
+
+# Arduino / build artifacts
+*.bin
+*.elf
+*.map
+build/
+.pio/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>नेपाली कान्छा · Medicine Box</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@500;700&family=Noto+Sans+Devanagari:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --navy:#0A1B2E; --teal:#14C8B0; --lime:#B8F34A; --coral:#FF5A5F; --amber:#FFB020; --bg:#F2F5F9; --ink:#0F2236; --muted:#6A7C91; --line:#E3E9F0;
+    --display:'Bricolage Grotesque','Noto Sans Devanagari',system-ui,sans-serif; --sans:'DM Sans','Noto Sans Devanagari',system-ui,sans-serif; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:radial-gradient(900px 520px at 88% -8%,rgba(20,200,176,.13),transparent 60%),radial-gradient(800px 460px at 20% 105%,rgba(0,56,147,.08),transparent 60%),var(--bg); color:var(--ink); font-family:var(--sans); font-weight:500; line-height:1.4; }
+  button{ font-family:var(--sans); }
+  @keyframes rise{ from{ opacity:0; transform:translateY(16px); } }
+  @keyframes ping{ 0%{ box-shadow:0 0 0 0 rgba(20,200,176,.7); } 80%,100%{ box-shadow:0 0 0 10px rgba(20,200,176,0); } }
+
+  /* ---------- shell ---------- */
+  .app{ display:grid; grid-template-columns:236px minmax(0,1fr) 360px; min-height:100vh; }
+  .side{ position:sticky; top:0; height:100vh; background:linear-gradient(180deg,var(--navy),#0D2740); color:#fff; padding:22px 14px; display:flex; flex-direction:column; gap:4px; }
+  .brand{ display:flex; align-items:center; gap:12px; padding:0 8px 22px; }
+  .logo{ width:42px; height:42px; border-radius:13px; background:linear-gradient(135deg,#F0D48A,#B8862B); display:grid; place-items:center; box-shadow:0 10px 26px -8px rgba(20,200,176,.8); }
+  .logo i{ display:block; width:24px; height:10px; border-radius:99px; background:linear-gradient(90deg,#fff 50%,var(--navy) 50%); transform:rotate(-40deg); }
+  .brand b{ font-family:var(--display); font-weight:800; font-size:22px; letter-spacing:-.02em; }
+  .nav button{ display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; border:none; border-radius:12px; background:transparent; color:rgba(255,255,255,.6); font:700 14.5px var(--sans); cursor:pointer; transition:all .2s; }
+  .nav button:hover{ color:#fff; background:rgba(255,255,255,.06); }
+  .nav button.on{ color:#fff; background:linear-gradient(90deg,rgba(20,200,176,.25),rgba(20,200,176,.04)); box-shadow:inset 3px 0 0 var(--teal); }
+  .nav svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+  .sfoot{ margin-top:auto; padding:12px; font-size:12px; opacity:.5; }
+  .main{ padding:24px 34px 50px; width:100%; max-width:1400px; margin:0 auto; grid-column:2; }
+  .bar-top{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+  .bar-top h1{ font-family:var(--display); font-weight:800; font-size:30px; letter-spacing:-.02em; line-height:1.1; }
+  .bar-top p{ color:var(--muted); font-size:14px; font-weight:700; margin-top:2px; }
+  .pill{ display:flex; align-items:center; gap:8px; padding:9px 16px; border-radius:99px; font-size:13px; font-weight:700; background:#fff; border:1px solid var(--line); box-shadow:0 6px 16px -10px rgba(10,27,46,.4); }
+  .dot{ width:9px; height:9px; border-radius:50%; background:var(--amber); }
+  .pill.live .dot{ background:var(--teal); animation:ping 1.8s infinite; } .pill.bad .dot{ background:var(--coral); }
+  .page{ display:none; } .page.on{ display:block; animation:rise .5s both; }
+  .cols{ display:grid; grid-template-columns:1.4fr 1fr; gap:18px; align-items:start; margin-top:18px; }
+  .card{ background:#fff; border-radius:20px; padding:22px; border:1px solid var(--line); box-shadow:0 18px 40px -28px rgba(10,27,46,.4); margin-bottom:18px; }
+  .cols .card{ margin-bottom:0; }
+  .ct{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; font-family:var(--display); font-weight:800; font-size:19px; letter-spacing:-.01em; }
+  .sm{ font:700 12px var(--sans); color:var(--muted); background:var(--bg); padding:4px 11px; border-radius:99px; }
+  .empty{ color:var(--muted); padding:18px 4px; font-weight:700; text-align:center; }
+
+  /* ---------- banners ---------- */
+  .bn{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:13px 18px; border-radius:14px; margin-bottom:12px; font-weight:700; font-size:14px; animation:rise .5s both; }
+  .bn.bad{ background:#FFE3E4; color:#A8242A; border:1px solid #FFC2C4; } .bn.warn{ background:#FFF3D6; color:#8A5A00; border:1px solid #FFE1A0; }
+  .bn button{ border:none; background:rgba(0,0,0,.08); border-radius:10px; padding:6px 12px; font-weight:700; font-size:12.5px; cursor:pointer; color:inherit; }
+
+  /* ---------- hero ---------- */
+  .hero{ position:relative; overflow:hidden; color:#fff; border-radius:24px; padding:36px 28px 28px; display:grid; grid-template-columns:240px 1fr; gap:30px; align-items:center;
+    background:radial-gradient(700px 300px at 10% 0%,#17456B,transparent 60%),linear-gradient(160deg,var(--navy),#0D2740); }
+  .hero::after{ content:""; position:absolute; width:280px; height:280px; border-radius:50%; background:var(--teal); filter:blur(80px); opacity:.28; right:-60px; top:-90px; animation:drift 12s ease-in-out infinite alternate; }
+  @keyframes drift{ to{ transform:translate(-50px,40px); } }
+  .ringbox{ position:relative; width:240px; height:240px; z-index:1; }
+  .ringbox svg{ width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
+  .rtrack{ fill:none; stroke:rgba(255,255,255,.1); stroke-width:10; }
+  .rarc{ fill:none; stroke:url(#rg); stroke-width:10; stroke-linecap:round; stroke-dasharray:100; stroke-dashoffset:100; transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1); filter:drop-shadow(0 0 8px rgba(20,200,176,.7)); }
+  .ringbox.alert .rarc{ stroke:var(--coral); filter:drop-shadow(0 0 14px rgba(255,90,95,.9)); animation:throb 1s ease-in-out infinite; }
+  @keyframes throb{ 50%{ stroke-width:14; } }
+  .ringbox.alert::before{ content:""; position:absolute; inset:-8px; border-radius:50%; border:2px solid var(--coral); animation:wave 1.6s ease-out infinite; }
+  @keyframes wave{ from{ transform:scale(.92); opacity:.9; } to{ transform:scale(1.18); opacity:0; } }
+  .rc{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 34px; }
+  .rc small{ font-size:11.5px; font-weight:700; opacity:.65; letter-spacing:.05em; }
+  .rc b{ font-family:var(--display); font-weight:800; font-size:40px; letter-spacing:-.03em; line-height:1.05; margin:4px 0; }
+  .rc span{ font-size:13.5px; font-weight:700; color:var(--lime); } .ringbox.alert .rc span{ color:#FFB3B5; }
+  .hinfo{ position:relative; z-index:1; min-width:0; }
+  .hinfo small{ font-weight:700; font-size:14px; opacity:.65; }
+  .hinfo h2{ font-family:var(--display); font-weight:800; font-size:clamp(24px,3.6vw,36px); letter-spacing:-.03em; line-height:1.1; margin:4px 0 20px; }
+  .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .stat{ padding:14px 16px; border-radius:16px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); transition:transform .2s; }
+  .stat:hover{ transform:translateY(-3px); }
+  .stat b{ display:block; font-family:var(--display); font-weight:800; font-size:32px; line-height:1; }
+  .stat span{ font-size:12.5px; font-weight:700; opacity:.65; }
+  .stat.t b{ color:var(--teal); } .stat.m b{ color:var(--coral); } .stat.u b{ color:var(--amber); }
+
+  /* ---------- timeline / lists ---------- */
+  .ti{ --c:#94A3B8; display:flex; align-items:center; gap:14px; padding:12px 14px; border:1px solid var(--line); border-left:5px solid var(--c); border-radius:14px; margin-bottom:10px; transition:transform .2s, box-shadow .2s; }
+  .ti:hover{ transform:translateX(4px); box-shadow:0 10px 24px -16px rgba(10,27,46,.5); }
+  .ti.taken{ --c:var(--teal); } .ti.missed{ --c:var(--coral); } .ti.now{ --c:var(--amber); background:#FFF8E8; animation:glowc 1.2s ease-in-out infinite alternate; } .ti.none{ --c:#CBD5E1; opacity:.7; }
+  @keyframes glowc{ to{ box-shadow:0 0 18px rgba(255,176,32,.45); } }
+  .ti .tm{ font:800 15px var(--display); min-width:76px; } .ti .nm{ flex:1; min-width:0; font-weight:700; } .ti .nm small{ display:block; color:var(--muted); font-weight:500; font-size:12.5px; }
+  .tag{ margin-left:auto; padding:3px 12px; border-radius:99px; font-size:12px; font-weight:700; background:#EEF2F7; color:var(--muted); white-space:nowrap; }
+  .ti.taken .tag,.tag.taken{ background:#D5F5EF; color:#0A7F70; } .ti.missed .tag,.tag.missed{ background:#FFE3E4; color:#C32F35; } .ti.now .tag{ background:#FFE3A8; color:#8A5A00; }
+  .wk{ display:flex; gap:8px; align-items:flex-end; height:140px; margin-top:6px; }
+  .col{ flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:6px; height:100%; font-size:12px; font-weight:700; color:var(--muted); }
+  .bar{ width:100%; max-width:34px; border-radius:9px 9px 4px 4px; display:flex; flex-direction:column; overflow:hidden; background:#E8EEF5; transform-origin:bottom; animation:grow .9s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes grow{ from{ transform:scaleY(0); } }
+  .adr{ display:flex; align-items:center; gap:18px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--line); }
+  .ad{ --p:0; width:92px; height:92px; border-radius:50%; flex:none; display:grid; place-items:center; background:conic-gradient(var(--teal) calc(var(--p)*1%),#E8EEF5 0); }
+  .ad div{ width:70px; height:70px; border-radius:50%; background:#fff; display:grid; place-items:center; font:800 20px var(--display); }
+  .adr p{ font-weight:700; } .adr small{ color:var(--muted); font-weight:500; }
+
+  /* ---------- medicines ---------- */
+  .add{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .add input[type=text]{ grid-column:span 3; }
+  input,select{ font:700 15px var(--sans); color:var(--ink); padding:12px 14px; border:1.5px solid var(--line); border-radius:12px; background:#fff; transition:border-color .2s, box-shadow .2s; min-width:0; }
+  input:focus,select:focus{ outline:none; border-color:var(--teal); box-shadow:0 0 0 4px rgba(20,200,176,.18); }
+  .btn{ border:none; border-radius:12px; padding:12px 24px; font:700 15px var(--sans); color:#fff; cursor:pointer; background:linear-gradient(135deg,#0FB9A3,#0A8FA8); box-shadow:0 10px 22px -10px rgba(10,143,168,.9); transition:transform .15s; }
+  .btn:hover{ transform:translateY(-2px); } .btn:active{ transform:scale(.96); } .btn.ghost{ background:#fff; color:var(--ink); border:1.5px solid var(--line); box-shadow:none; padding:9px 16px; font-size:13.5px; }
+  .grp{ border:1px solid var(--line); border-radius:16px; margin-bottom:12px; overflow:hidden; background:#fff; }
+  .grp.new{ animation:pop .6s cubic-bezier(.2,1.4,.4,1); } @keyframes pop{ from{ transform:scale(.9); opacity:0; } }
+  .gh{ display:flex; align-items:center; gap:14px; padding:14px 16px; flex-wrap:wrap; background:linear-gradient(90deg,hsl(var(--h) 90% 96%),#fff); }
+  .cap{ width:38px; height:17px; border-radius:99px; flex:none; transform:rotate(-35deg); border:2px solid hsl(var(--h) 75% 45%); background:linear-gradient(90deg,hsl(var(--h) 80% 58%) 50%,#fff 50%); box-shadow:0 4px 10px -3px hsl(var(--h) 75% 45%); margin:0 4px; }
+  .gn{ flex:1; min-width:140px; } .gn b{ display:block; font-family:var(--display); font-size:17px; font-weight:800; } .gn span{ font-size:12.5px; color:var(--muted); font-weight:700; }
+  .stk{ display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; color:var(--muted); } .stk input{ width:70px; padding:7px 10px; font-size:14px; }
+  .stk .b{ padding:2px 10px; border-radius:99px; font-size:11.5px; background:#FFF3D6; color:#8A5A00; } .stk .b.z{ background:#FFE3E4; color:#C32F35; }
+  .row{ display:flex; align-items:center; gap:12px; padding:10px 16px; border-top:1px solid var(--line); transition:background .2s; }
+  .row:hover{ background:#F8FAFC; } .row .sp{ flex:1; font-size:13px; color:var(--muted); font-weight:700; } .row.off input{ opacity:.4; }
+  .sw2{ width:46px; height:26px; border-radius:99px; border:none; background:#CBD5E1; position:relative; cursor:pointer; flex:none; transition:background .3s; }
+  .sw2::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.3); transition:transform .3s cubic-bezier(.2,1.4,.4,1); }
+  .sw2.on{ background:var(--teal); } .sw2.on::after{ transform:translateX(20px); }
+  .del{ border:none; background:transparent; color:var(--muted); width:32px; height:32px; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; transition:all .2s; }
+  .del:hover{ background:#FFE3E4; color:var(--coral); transform:rotate(90deg); }
+
+  /* ---------- history + device ---------- */
+  .flt{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:6px; }
+  .flt button{ border:1.5px solid var(--line); background:#fff; border-radius:99px; padding:7px 16px; font:700 13.5px var(--sans); color:var(--muted); cursor:pointer; transition:all .2s; }
+  .flt button.on{ background:var(--navy); color:#fff; border-color:var(--navy); } .flt .btn{ margin-left:auto; }
+  .dh{ font:800 13px var(--display); color:var(--muted); margin:16px 0 6px; }
+  .hi{ display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); font-size:14.5px; } .hi small{ display:block; color:var(--muted); font-size:12.5px; font-weight:500; }
+  .d{ width:10px; height:10px; border-radius:50%; flex:none; } .d.taken{ background:var(--teal); } .d.missed{ background:var(--coral); }
+  .kv{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:6px; }
+  .kv div{ background:var(--bg); border-radius:14px; padding:14px 16px; } .kv small{ color:var(--muted); font-weight:700; font-size:12.5px; } .kv b{ display:block; font:800 20px var(--display); margin-top:2px; }
+  .wf{ display:inline-flex; align-items:flex-end; gap:3px; margin-right:8px; } .wf i{ width:5px; border-radius:2px; background:#D5DDE7; } .wf i.on{ background:var(--teal); }
+  .guide{ display:grid; gap:10px; } .guide div{ display:flex; gap:12px; align-items:flex-start; font-weight:700; font-size:14.5px; } .guide small{ display:block; color:var(--muted); font-weight:500; font-size:13px; }
+  .gi{ width:34px; height:34px; border-radius:11px; flex:none; display:grid; place-items:center; font-weight:800; color:#fff; }
+  .card + .cols{ margin-top:0; }
+  .card{ transition:transform .25s, box-shadow .25s; } .cols .card:hover{ transform:translateY(-3px); box-shadow:0 24px 44px -26px rgba(10,27,46,.5); }
+  .page.on > *{ animation:rise .55s both; } .page.on > *:nth-child(2){ animation-delay:.08s; } .page.on > *:nth-child(3){ animation-delay:.16s; } .page.on > *:nth-child(4){ animation-delay:.24s; }
+  .hero{ --mx:30%; --my:20%; }
+  .hero::before{ content:""; position:absolute; inset:0; background:radial-gradient(420px circle at var(--mx) var(--my),rgba(255,255,255,.13),transparent 60%); pointer-events:none; }
+  .cp{ position:absolute; width:46px; height:20px; border-radius:99px; background:linear-gradient(90deg,var(--teal) 50%,#fff 50%); opacity:.18; animation:bob 9s ease-in-out infinite alternate; }
+  .cp.a{ right:24%; top:12%; transform:rotate(30deg); } .cp.b{ right:7%; bottom:14%; transform:rotate(-25deg); animation-delay:-4s; background:linear-gradient(90deg,var(--coral) 50%,#fff 50%); }
+  @keyframes bob{ to{ margin-top:-20px; margin-left:14px; } }
+  .ticks{ fill:none; stroke:rgba(255,255,255,.22); stroke-width:5; stroke-dasharray:1.4 9.07; transform-origin:100px 100px; animation:spinT 90s linear infinite; } @keyframes spinT{ to{ transform:rotate(360deg); } }
+  .streak{ display:none; align-items:center; gap:8px; margin:-8px 0 16px; padding:7px 14px; border-radius:99px; background:rgba(255,176,32,.16); border:1px solid rgba(255,176,32,.4); color:#FFD27A; font-weight:700; font-size:13.5px; animation:pop .6s cubic-bezier(.2,1.4,.4,1) both; }
+  .hm{ display:grid; grid-template-columns:repeat(14,1fr); gap:6px; } .hm i{ display:block; aspect-ratio:1; border-radius:7px; background:#E8EEF5; animation:pop .5s both; transition:transform .15s; } .hm i:hover{ transform:scale(1.25); }
+  .hml{ display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:12px; font-weight:700; color:var(--muted); } .hml span::before{ content:""; display:inline-block; width:10px; height:10px; border-radius:3px; background:var(--c); margin-right:6px; }
+  .toasts{ position:fixed; right:22px; bottom:24px; display:grid; gap:10px; z-index:50; }
+  .toast{ background:var(--navy); color:#fff; padding:12px 18px; border-radius:14px; font-weight:700; font-size:14px; box-shadow:0 16px 34px -12px rgba(10,27,46,.7); border-left:4px solid var(--teal); animation:rise .35s both, out .4s 2.5s forwards; }
+  @keyframes out{ to{ opacity:0; transform:translateY(10px); } }
+  .cf{ position:fixed; top:-14px; width:9px; height:14px; border-radius:2px; z-index:60; pointer-events:none; animation:fall 2.2s ease-in forwards; } @keyframes fall{ to{ transform:translate(var(--dx),105vh) rotate(720deg); opacity:.8; } }
+  @media (max-width:900px){ .toasts{ bottom:84px; left:14px; right:14px; } } @media (max-width:520px){ .hm{ grid-template-columns:repeat(7,1fr); } }
+  .sg{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px 24px; } .sg label{ display:flex; justify-content:space-between; align-items:center; gap:12px; font-weight:700; font-size:14px; }
+  .sg label span{ display:flex; align-items:center; gap:8px; color:var(--muted); } .sg input[type=number]{ width:78px; } .sg input[type=range]{ accent-color:var(--teal); padding:0; } .sg .wide{ grid-column:span 2; } .sg .wide input{ flex:1; }
+  @media (max-width:700px){ .sg{ grid-template-columns:1fr; } .sg .wide{ grid-column:auto; } }
+  .dhaka{ position:absolute; top:0; left:0; right:0; height:8px; z-index:2; background:repeating-linear-gradient(135deg,#DC143C 0 8px,#fff 8px 10px,#003893 10px 18px,#fff 18px 20px); }
+  .kansa{ display:block; font-size:11px; font-weight:700; letter-spacing:.06em; background:linear-gradient(90deg,#F0D48A,#C9A24B); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .photo{ display:grid; grid-template-columns:240px 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,#141416,#1E1E23); color:#fff; border:none; }
+  .photo img{ width:100%; border-radius:16px; display:block; } .photo p{ opacity:.75; line-height:1.6; } .photo .sm{ background:rgba(255,255,255,.1); color:#ddd; }
+  @media (max-width:900px){ .photo{ grid-template-columns:1fr; } }
+  .langsw{ position:relative; display:flex; background:#fff; border:1px solid var(--line); border-radius:99px; padding:3px; box-shadow:0 6px 16px -10px rgba(10,27,46,.4); }
+  .langsw button{ position:relative; z-index:1; min-width:66px; border:none; background:transparent; padding:6px 14px; border-radius:99px; font:700 13px var(--sans); color:var(--muted); cursor:pointer; transition:color .25s; }
+  .langsw button.on{ color:#fff; } .langsw i{ position:absolute; top:3px; bottom:3px; left:3px; width:calc(50% - 3px); border-radius:99px; background:linear-gradient(135deg,#0FB9A3,#0A8FA8); transition:transform .35s cubic-bezier(.2,.9,.3,1.2); } .langsw.ne i{ transform:translateX(100%); }
+  .rail{ grid-column:3; grid-row:1; align-self:start; position:sticky; top:0; max-height:100vh; overflow:auto; padding:24px 24px 24px 0; display:flex; flex-direction:column; gap:16px; }
+  .stage{ position:relative; border-radius:22px; overflow:hidden; background:#141416; color:#fff; border:1px solid rgba(255,255,255,.08); box-shadow:0 30px 60px -30px rgba(10,27,46,.75); transition:box-shadow .4s; animation:rise .8s .2s both; }
+  .stage .dhaka{ height:6px; }
+  .vid{ position:relative; aspect-ratio:4/4.4; overflow:hidden; background:#1a1a1a; }
+  .vid img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:42% 50%; animation:kb 16s ease-in-out infinite alternate; transition:filter .5s; } @keyframes kb{ from{ transform:scale(1.03); } to{ transform:scale(1.16) translate(-2%,-1.5%); } }
+  .vid::after{ content:""; position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),linear-gradient(180deg,rgba(0,0,0,.4),transparent 28%,transparent 52%,rgba(0,0,0,.82)); }
+  .vtop{ position:absolute; top:18px; left:14px; right:14px; z-index:3; display:flex; justify-content:space-between; align-items:center; }
+  .live{ display:flex; align-items:center; gap:6px; padding:4px 11px; border-radius:99px; background:rgba(0,0,0,.55); font:800 11px var(--sans); letter-spacing:.1em; } .live i{ width:7px; height:7px; border-radius:50%; background:var(--coral); animation:bd 1.2s infinite; } @keyframes bd{ 50%{ opacity:.25; } }
+  .vtop em{ font:700 12px var(--sans); font-style:normal; opacity:.8; }
+  .rings{ position:absolute; left:54%; top:50%; z-index:2; } .rings i{ position:absolute; width:44px; height:44px; margin:-22px 0 0 -22px; border:2px solid var(--teal); border-radius:50%; opacity:0; animation:ring 3s ease-out infinite; } .rings i:nth-child(2){ animation-delay:1s; } .rings i:nth-child(3){ animation-delay:2s; }
+  @keyframes ring{ from{ transform:scale(.4); opacity:.8; } to{ transform:scale(2.6); opacity:0; } }
+  .cap{ position:absolute; left:18px; right:18px; bottom:16px; z-index:3; } .cap b{ display:block; font:800 22px var(--display); line-height:1.2; } .cap small{ font-weight:700; font-size:13px; opacity:.75; }
+  .cap.sw b,.cap.sw small{ animation:capin .6s both; } @keyframes capin{ from{ opacity:0; transform:translateY(10px); } }
+  .ctrl{ display:flex; align-items:center; gap:12px; padding:12px 16px; background:#0E0E10; font:700 12px var(--sans); }
+  .ctrl button{ width:30px; height:30px; border-radius:50%; border:none; background:rgba(255,255,255,.14); color:#fff; font-size:11px; cursor:pointer; transition:background .2s; } .ctrl button:hover{ background:var(--teal); }
+  .prog{ flex:1; height:4px; border-radius:9px; background:rgba(255,255,255,.18); overflow:hidden; } .prog i{ display:block; height:100%; transform-origin:left; background:linear-gradient(90deg,var(--teal),var(--lime)); animation:prog 14s linear infinite; } @keyframes prog{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+  .sbody{ padding:16px 18px 18px; background:linear-gradient(180deg,#0E0E10,#17171b); } .sbody b{ display:block; font:800 24px var(--display); letter-spacing:-.01em; } .sbody span{ font-size:13px; opacity:.65; font-weight:700; }
+  .say{ position:absolute; left:50%; top:52px; transform:translateX(-50%); z-index:4; width:max-content; max-width:240px; text-align:center; padding:8px 14px; border-radius:14px; background:#fff; color:var(--ink); font-weight:700; font-size:13px; box-shadow:0 12px 26px -10px rgba(0,0,0,.6); animation:pop .5s both; }
+  .idle .say{ display:none; } .alert .say{ background:var(--coral); color:#fff; } .happy .say{ background:var(--lime); }
+  .stage.alert{ box-shadow:0 0 0 2px var(--coral),0 0 44px rgba(255,90,95,.55); } .alert .rings i{ border-color:var(--coral); animation-duration:1.3s; } .alert .vid img{ filter:saturate(1.25); } .sad .vid img{ filter:grayscale(.75); }
+  .paused *{ animation-play-state:paused !important; }
+  .rnext{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:0; padding:18px; animation:rise .8s .35s both; } .rnext small{ color:var(--muted); font-weight:700; font-size:12.5px; } .rnext b{ display:block; font:800 18px var(--display); margin-top:2px; } .rnext span{ color:var(--muted); font-weight:700; font-size:13px; }
+  @media (max-width:1279px){ .app{ grid-template-columns:236px minmax(0,1fr); } .rail{ display:none; } }
+  :focus-visible{ outline:3px solid var(--teal); outline-offset:2px; }
+
+  @media (max-width:900px){
+    .app{ grid-template-columns:1fr; } .main{ padding:18px 16px 96px; }
+    .side{ position:fixed; z-index:30; top:auto; bottom:0; left:0; right:0; height:auto; flex-direction:row; padding:6px 8px; border-radius:18px 18px 0 0; }
+    .brand,.sfoot{ display:none; } .nav{ display:flex; width:100%; gap:2px; } .nav button{ flex-direction:column; gap:3px; padding:8px 4px; font-size:11.5px; justify-content:center; }
+    .cols,.hero{ grid-template-columns:1fr; } .hero{ justify-items:center; text-align:center; } .hinfo{ width:100%; } .kv{ grid-template-columns:1fr; }
+  }
+  @media (max-width:520px){ .add{ grid-template-columns:1fr 1fr; } .add input[type=text]{ grid-column:span 2; } .add .btn{ grid-column:span 2; } .ringbox{ width:210px; height:210px; } }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="stage" id="mascot"><div class="dhaka"></div>
+      <div class="vid"><img id="kb" alt="नेपाली कान्छा robot"><div class="rings"><i></i><i></i><i></i></div>
+        <div class="vtop"><span class="live"><i></i>LIVE</span><em>नेपाली कान्छा</em></div><div class="say" id="say"></div>
+        <div class="cap" id="cap"><b id="capT">--</b><small id="capS"></small></div></div>
+      <div class="ctrl"><button id="pp" aria-label="Pause or play">❚❚</button><div class="prog"><i></i></div><span id="capN">1 / 4</span></div>
+      <div class="sbody"><b>नेपाली कान्छा</b><span>Medicine Box · your medicine buddy</span></div></div>
+    <div class="card rnext"><div><small>Next dose</small><b id="rbName">--</b><span id="rbTime">--</span></div><div><small>Box</small><b id="rbBox">--</b></div></div>
+  </aside>
+  <aside class="side">
+    <div class="brand"><div class="logo"><svg viewBox="0 0 40 40" width="30" height="30"><rect x="6" y="4" width="28" height="30" rx="7" fill="#17171b"/><rect x="4" y="12" width="32" height="6" fill="#E10600"/><circle cx="15" cy="25" r="4.5" fill="#fff"/><circle cx="26" cy="25" r="4.5" fill="#fff"/><circle cx="16" cy="25.5" r="2" fill="#000"/><circle cx="27" cy="25.5" r="2" fill="#000"/></svg></div><div><b>नेपाली कान्छा</b><span class="kansa">Medicine Box</span></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sfoot">Medicine reminder<br>for the family<span class="kansa" style="margin-top:8px">Made in Nepal</span></div>
+  </aside>
+
+  <div class="main">
+    <div class="bar-top">
+      <div><h1 id="pgTitle">Overview</h1><p id="pgSub"></p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><div class="langsw" id="lang" role="group" aria-label="Language"><button data-l="en">EN</button><button data-l="ne">नेपाली</button><i></i></div><div class="pill" id="clock">--</div><div class="pill" id="connPill"><span class="dot"></span><span id="connText">Connecting…</span></div></div>
+    </div>
+    <div id="banners"></div>
+
+    <!-- OVERVIEW -->
+    <section class="page" id="p-home">
+      <div class="hero">
+        <div class="dhaka"></div><i class="cp a"></i><i class="cp b"></i>
+        
+        <div class="ringbox" id="ringbox">
+          <svg viewBox="0 0 200 200"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14C8B0"/><stop offset="1" stop-color="#B8F34A"/></linearGradient></defs>
+            <circle class="ticks" cx="100" cy="100" r="101"/><circle class="rtrack" cx="100" cy="100" r="88"/><circle class="rarc" id="arc" cx="100" cy="100" r="88" pathLength="100"/></svg>
+          <div class="rc"><small id="rLabel">NEXT DOSE IN</small><b id="rBig">--</b><span id="rSub">--</span></div>
+        </div>
+        <div class="hinfo">
+          <small id="greet">Hello</small>
+          <h2 id="heroMsg">Waiting for the box…</h2>
+          <div class="streak" id="streak"></div>
+          <div class="stats">
+            <div class="stat t"><b id="sT">0</b><span>Taken today</span></div>
+            <div class="stat m"><b id="sM">0</b><span>Missed today</span></div>
+            <div class="stat u"><b id="sU">0</b><span>Still to come</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="cols">
+        <div class="card"><div class="ct"><span>Today’s doses</span><span class="sm" id="todayCnt">0 doses</span></div><div id="today"></div></div>
+        <div class="card"><div class="ct"><span>This week</span><span class="sm">last 7 days</span></div>
+          <div class="adr"><div class="ad" id="ad"><div id="adn">--</div></div><p>Doses taken on time<br><small id="adt">No records yet</small></p></div>
+          <div class="wk" id="wk"></div></div>
+      </div>
+    </section>
+
+    <!-- MEDICINES -->
+    <section class="page" id="p-meds">
+      <div class="card"><div class="ct"><span>Add a medicine</span><span class="sm">saved automatically</span></div>
+        <div class="add">
+          <input type="text" id="name" placeholder="Medicine name, e.g. Paracetamol" maxlength="24">
+          <button class="btn" id="addBtn">Add</button>
+          <select id="freq" aria-label="Times per day"><option value="1">1× a day</option><option value="2">2× a day</option><option value="3" selected>3× a day</option><option value="4">4× a day</option></select>
+          <select id="meal" aria-label="With food"><option value="any">Any time</option><option value="before">Before food</option><option value="after" selected>After food</option></select>
+          <select id="dur" aria-label="Course length"><option value="0">Ongoing</option><option value="3">3 days</option><option value="5">5 days</option><option value="7">7 days</option><option value="10">10 days</option><option value="14">14 days</option></select>
+          <input type="number" id="pills" min="0" placeholder="Pills in stock" aria-label="Pills in stock">
+        </div></div>
+      <div class="ct" style="margin:6px 4px 12px"><span>Schedule</span><span class="sm" id="cnt">0 doses</span></div>
+      <div id="list"></div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="page" id="p-history">
+      <div class="card"><div class="ct"><span>Last 4 weeks</span><span class="sm">hover a square</span></div><div class="hm" id="hm"></div>
+        <div class="hml"><span style="--c:#14C8B0">All taken</span><span style="--c:#FFB020">Some missed</span><span style="--c:#FF5A5F">Missed</span><span style="--c:#E8EEF5">No record</span></div></div>
+      <div class="card">
+        <div class="flt" id="flt"><button data-f="all" class="on">All</button><button data-f="taken">Taken</button><button data-f="missed">Missed</button><button class="btn ghost" id="csv">Export CSV</button></div>
+        <div id="hlist"></div>
+      </div>
+    </section>
+
+    <!-- DEVICE -->
+    <section class="page" id="p-device">
+      <div class="card photo"><img src="data:image/jpeg;base64,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KAFHSn3q/Osn8MgDfQ96YDVmMCWAxOcDOVPoaAM8ikNSOpjcrIMEUwjPSgBlFKRikoAaTmkoooASkxSmigBpFIRTjSGgBuKMU7FAUmgBuKcBTtuOtH0oAXIVeOtaFjCYkEzjEjD5Aew9abaWgT95cDP91PX3NWWO45PWgBtFKaSgAooooAKKKKACiiigBsn3DUI61LN90VEvUUATKuKGXNOooATaMYqJkweOlTUEZoAr4pKe64zTKACiiigAooooAKKKKACiiigAooooAKgb7x+tT1A33j9aAEooooAKKKKACiiigC5ov/IYsP8Ar4j/APQhRRov/IYsP+viP/0IUV9HknwT9Tnr7op1Mn3BUNTJ9wV84dA6iiigAooooAKKKKACiiigAooooAKfGxHHamUq9aALLBZ49kvBA+Vx2+tU54JICN3Know6Gra9Kmb/AI8JvrQBlZBpCuaTsKB0oATbSbafRQBGVo2080UAR7aUKKU0lABgCk3Y6UHpQnagCWG3ln5VfkHVjwB+NXYooocFRvk/vEcD6VZm/wCPW3+lV6AHl8nJOSaQtTaKAF3e1G4elJRQAu4elG4elJRQAu4elG4elJRQAu4elLkU2igCOU/NTU+8KdJ940iffFAE9FFFABRRRQAjYwc1Xqw/3TVegAooooAKKKKACiiigAooooAKKKKACoG+8frU9QN94/WgBKKq3H+sqKgC/RVCigC/RVCigDb0X/kMWH/XxH/6EKKpaF/yG9O/6+Y//QxRX0eSfBP1Oevuj//Z" alt="Nepali Kancha robot"><div><div class="ct"><span>Meet Nepali Kancha</span><span class="sm">your medicine buddy</span></div>
+        <p>A friendly helper that speaks the reminder, waits for the green button, and tells the family when a dose is missed. Built in Nepal, for Nepali families.</p></div></div>
+      <div class="card"><div class="ct"><span>Box status</span><span class="sm">live</span></div>
+        <div class="kv"><div><small>State</small><b id="dvState">--</b></div><div><small>Last seen</small><b id="dvSeen">--</b></div><div><small>WiFi signal</small><b id="dvWifi">--</b></div></div></div>
+      <div class="cols">
+        <div class="card"><div class="ct"><span>Patient</span></div>
+          <p style="color:var(--muted);font-weight:700;font-size:14px;margin-bottom:10px">Whose medicine is this? The name appears across the dashboard.</p>
+          <input type="text" id="patient" placeholder="e.g. Grandfather" maxlength="24" style="width:100%"></div>
+        <div class="card"><div class="ct"><span>How the box works</span></div>
+          <div class="guide">
+            <div><span class="gi" style="background:var(--coral)">R</span><span>Red button<small>Not yet. The box asks again in 5 minutes.</small></span></div>
+            <div><span class="gi" style="background:var(--teal)">G</span><span>Green button, hold 5 seconds<small>Medicine taken. The box says thank you.</small></span></div>
+            <div><span class="gi" style="background:var(--amber)">!</span><span>No answer<small>Audio repeats every 3 minutes. After 30 minutes the dose is marked missed.</small></span></div>
+          </div></div>
+      </div>
+    <div class="card" id="setCard"><div class="ct"><span>Reminder settings</span><span class="sm">box updates within 30 s</span></div>
+        <div class="sg">
+          <label>Repeat reminder every<span><input type="number" id="sRepeat" min="1" max="30"> min</span></label>
+          <label>Ask again after “Not yet”<span><input type="number" id="sSnooze" min="1" max="60"> min</span></label>
+          <label>Mark as missed after<span><input type="number" id="sMissed" min="5" max="180"> min</span></label>
+          <label>Hold green button<span><input type="number" id="sHold" min="3" max="10"> sec</span></label>
+          <label>Speaker volume<span><input type="range" id="sVol" min="0" max="30"></span></label>
+          <label>SMS to family when missed<span><button class="sw2" id="sSms" type="button" aria-label="SMS alert"></button></span></label>
+          <label class="wide">Family phone number<input type="text" id="sPhone" placeholder="+97798XXXXXXXX" maxlength="16"></label>
+        </div><button class="btn" id="sSave" style="margin-top:18px">Save settings</button></div>
+      </section>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script type="module">
+const firebaseConfig = {
+  apiKey: "AIzaSyCQlrW-lumDFZTKA7isG7XrHai4N94DjJk",
+  authDomain: "nxt-date.firebaseapp.com",
+  databaseURL: "https://nxt-date-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "nxt-date",
+  storageBucket: "nxt-date.firebasestorage.app",
+  messagingSenderId: "907386980597",
+  appId: "1:907386980597:web:70e0974d0bc6d25bf39dbc"
+};
+const BASE = 'medbox/box1', STALE_MS = 20000, LOW = 5;
+const DEFAULT_TIMES = {1:['09:00'], 2:['09:00','20:00'], 3:['09:00','13:00','20:00'], 4:['08:00','12:00','16:00','20:00']};
+const MEAL = {any:'Any time', before:'Before food', after:'After food'};
+const PAGES = {home:['Overview','Today at a glance','M3 11l9-8 9 8v10h-6v-6H9v6H3z'], meds:['Medicines','Set what to take and when','M10.5 20.5a5 5 0 0 1-7-7l9-9a5 5 0 0 1 7 7zM8.5 8.5l7 7'],
+  history:['History','Every dose, taken or missed','M12 8v4l3 2M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5'], device:['Device','The box and the patient','M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 20h.01']};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const toMin = t => +t.slice(0,2)*60 + +t.slice(3,5);
+const fmt = t => { const h = +t.slice(0,2); return ((h%12)||12) + ':' + t.slice(3,5) + (h<12 ? ' AM' : ' PM'); };
+const hue = n => [...n].reduce((a,c) => a*31 + c.charCodeAt(0), 7) % 360;
+const keyOf = n => n.replace(/[.$#\[\]\/]/g, '_');
+const ds = d => d.toLocaleDateString('en-CA');
+const timeAgo = ts => { const s = Math.max(0, Math.floor((Date.now()-ts)/1000)); return s<5 ? 'just now' : s<60 ? s+'s ago' : s<3600 ? Math.floor(s/60)+'m ago' : Math.floor(s/3600)+'h ago'; };
+
+let meds = [], logs = [], stock = {}, profile = {}, status = null, online = false, newName = null, filter = 'all', page = 'home';
+let seen = false, firstAt = 0, lastBeat, lastUpdate = 0, save = () => {}, put = () => {};
+const dismissed = new Set();
+const toast = m => { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; $('toasts').append(e); setTimeout(() => e.remove(), 3000); };
+function celebrate(){
+  for(let i = 0; i < 40; i++){ const e = document.createElement('i'); e.className = 'cf';
+    e.style.cssText = `left:${Math.random()*100}vw;background:hsl(${Math.random()*360} 85% 60%);animation-delay:${Math.random()*.4}s;--dx:${(Math.random()-.5)*180}px`;
+    document.body.append(e); setTimeout(() => e.remove(), 2800); }
+  toast('Dose taken. Well done! 🎉'); cheer();
+}
+const dayCount = (k, st) => logs.filter(l => l.date === k && l.status === st).length;
+function streak(){ let n = 0; for(let i = 0; i < 60; i++){ const k = ds(new Date(Date.now() - i*864e5)); if(dayCount(k,'missed')) break; if(dayCount(k,'taken')) n++; else if(i > 0) break; } return n; }
+let lang = 'en'; try{ lang = localStorage.getItem('mb-lang') || 'en'; }catch(e){}
+let moodUntil = 0; const cheer = () => { moodUntil = Date.now() + 7000; renderHero(); setTimeout(renderHero, 7200); };
+const NE = {'Overview':'सारांश','Medicines':'औषधिहरू','History':'इतिहास','Device':'उपकरण','Today at a glance':'आजको झलक','Set what to take and when':'के, कहिले खाने तय गर्नुहोस्',
+  'Every dose, taken or missed':'खाएका र छुटेका सबै मात्रा','The box and the patient':'बक्स र बिरामी','Taken today':'आज खाइयो','Missed today':'आज छुट्यो','Still to come':'अझै बाँकी',
+  'NEXT DOSE IN':'अर्को मात्रा','TAKE NOW':'अहिले खानुहोस्','NO DOSES':'मात्रा छैन','Everything is on track.':'सबै ठीक छ।','Waiting for the box…':'बक्सलाई पर्खँदै…',
+  'Waiting for the box to wake up…':'बक्स जागोस् भनी पर्खँदै…','Add a medicine to start reminders.':'सम्झना सुरु गर्न औषधि थप्नुहोस्।','Box online':'बक्स अनलाइन','Box offline':'बक्स अफलाइन',
+  'Connecting…':'जोड्दै…','Today’s doses':'आजका मात्रा','This week':'यो हप्ता','last 7 days':'पछिल्ला ७ दिन','Doses taken on time':'समयमै खाएका मात्रा','Taken':'खाइयो','taken':'खाइयो',
+  'Missed':'छुट्यो','missed':'छुट्यो','Upcoming':'आउँदै','Take now':'अहिले खानुहोस्','No record':'रेकर्ड छैन','Add a medicine':'औषधि थप्नुहोस्','saved automatically':'आफैं सेभ हुन्छ',
+  'Schedule':'तालिका','Add':'थप्नुहोस्','Any time':'जुनसुकै बेला','Before food':'खाना अघि','After food':'खाना पछि','Ongoing':'निरन्तर','Last 4 weeks':'पछिल्ला ४ हप्ता',
+  'hover a square':'वर्गमा माउस राख्नुहोस्','All taken':'सबै खाइयो','Some missed':'केही छुट्यो','All':'सबै','Export CSV':'CSV निर्यात','Box status':'बक्सको अवस्था','live':'लाइभ','State':'अवस्था',
+  'Last seen':'पछिल्लो पटक','WiFi signal':'वाइफाइ सिग्नल','Patient':'बिरामी','How the box works':'बक्सले कसरी काम गर्छ','Reminder settings':'सम्झना सेटिङ','Save settings':'सेटिङ सेभ गर्नुहोस्',
+  'Online · idle':'अनलाइन · तयार','Offline':'अफलाइन','Reminding now':'अहिले सम्झाउँदै','Today':'आज','Yesterday':'हिजो','Meet Nepali Kancha':'नेपाली कान्छालाई भेट्नुहोस्','your medicine buddy':'तपाईंको औषधि साथी','Next dose':'अर्को मात्रा','Box':'बक्स','Online':'अनलाइन'};
+const EN = {}; for(const [a,b] of Object.entries(NE)) if(!(b in EN)) EN[b] = a;
+function applyLang(){ const m = lang === 'ne' ? NE : EN;
+  document.querySelectorAll('.app *').forEach(el => { if(el.children.length) return; const x = el.textContent.trim(); if(m[x]) el.textContent = m[x]; }); }
+let prevTaken = null, settings = {repeat:3, snooze:5, missed:30, hold:5, volume:25, sms:0, phone:''};
+const todayNum = () => +ds(new Date()).replace(/-/g, '');
+const ended = m => m.until && m.until < todayNum();
+const course = u => { if(!u) return ''; const e = new Date(Math.floor(u/10000), Math.floor(u/100)%100 - 1, u%100), t = new Date(); t.setHours(0,0,0,0);
+  const left = Math.round((e - t)/864e5) + 1; return left < 1 ? ' · Course finished' : ` · ${left} ${left === 1 ? 'day' : 'days'} left`; };
+const tickClock = () => { $('clock').textContent = new Date().toLocaleString([], {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}); };
+tickClock(); setInterval(tickClock, 1000);
+const patient = () => profile.patient || 'the patient';
+
+function setNum(el, v){
+  const from = +el.textContent || 0, t0 = performance.now();
+  (function s(t){ const p = Math.min(1, (t-t0)/700); el.textContent = Math.round(from + (v-from)*p); if(p<1) requestAnimationFrame(s); })(t0);
+}
+
+/* ---------- navigation ---------- */
+$('nav').innerHTML = Object.entries(PAGES).map(([k,v]) => `<button data-p="${k}"><svg viewBox="0 0 24 24"><path d="${v[2]}"/></svg>${v[0]}</button>`).join('');
+function go(p){
+  if(!PAGES[p]) p = 'home'; page = p; history.replaceState(null, '', '#' + p);
+  document.querySelectorAll('.page').forEach(e => e.classList.toggle('on', e.id === 'p-' + p));
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  $('pgTitle').textContent = PAGES[p][0]; $('pgSub').textContent = PAGES[p][1];
+  if(p === 'home') renderWeek();
+  applyLang();
+}
+$('nav').onclick = e => { const b = e.target.closest('button'); if(b) go(b.dataset.p); };
+
+/* ---------- connection ---------- */
+function setConn(on, cloudBad){
+  online = on;
+  $('connPill').className = 'pill' + (on ? ' live' : ' bad');
+  $('connText').textContent = cloudBad ? 'Cloud offline' : on ? 'Box online' : 'Box offline';
+  rAll();
+}
+setInterval(() => { if(seen && Date.now() - (lastUpdate || firstAt) > (lastUpdate ? STALE_MS : 8000)) setConn(false); }, 2000);
+
+/* ---------- banners ---------- */
+function renderBanners(){
+  const b = [], t = ds(new Date());
+  logs.filter(l => l.date === t && l.status === 'missed' && !dismissed.has(l.name + l.time)).slice(0,3)
+    .forEach(l => b.push(['bad', `Missed dose: ${l.name} at ${fmt(l.time)}. Please check on ${patient()}.`, l.name + l.time]));
+  [...new Set(meds.map(m => m.name))].forEach(n => { const s = stock[keyOf(n)]; if(s !== undefined && s <= LOW) b.push(['warn', `${n}: ${s === 0 ? 'no pills left' : s + ' pills left'}. Time to refill.`, null]); });
+  $('banners').innerHTML = b.map(([c,m,k]) => `<div class="bn ${c}"><span>${esc(m)}</span>${k ? `<button data-k="${esc(k)}">Dismiss</button>` : ''}</div>`).join('');
+}
+$('banners').onclick = e => { const k = e.target.dataset.k; if(k){ dismissed.add(k); renderBanners(); } };
+
+/* ---------- overview ---------- */
+function doseState(m){
+  const n = new Date(), cur = n.getHours()*60 + n.getMinutes(), dm = toMin(m.time);
+  const l = logs.find(l => l.date === ds(n) && l.name === m.name && toMin(l.time) >= dm && toMin(l.time) <= dm + 32);
+  if(l) return l.status;
+  if(status && status.state === 'alert' && status.dose === m.name && cur >= dm && cur <= dm + 32) return 'now';
+  return cur > dm + 32 ? 'none' : cur >= dm ? 'now' : 'up';
+}
+function renderHero(){
+  const n = new Date(), cur = n.getHours()*60 + n.getMinutes() + n.getSeconds()/60, h = n.getHours();
+  $('greet').textContent = (lang === 'ne' ? 'नमस्ते 🙏 · ' + (h<12 ? 'शुभ प्रभात' : h<17 ? 'शुभ दिन' : 'शुभ साँझ') : 'Namaste 🙏 · ' + (h<12 ? 'Good morning' : h<17 ? 'Good afternoon' : 'Good evening')) + (profile.patient ? ' · ' + profile.patient + (lang === 'ne' ? ' को औषधि' : '’s medicine') : '');
+  const on = meds.filter(m => m.on && !ended(m)), alert = online && status && status.state === 'alert';
+  document.title = alert ? `🔔 Take ${status.dose} now` : 'नेपाली कान्छा · Medicine Box';
+  $('ringbox').classList.toggle('alert', !!alert);
+  if(alert){
+    $('rLabel').textContent = 'TAKE NOW'; $('rBig').textContent = '💊'; $('rSub').textContent = status.dose;
+    $('arc').style.strokeDashoffset = 0; $('heroMsg').textContent = (lang === 'ne' ? `${status.dose} खाने समय भयो` : `Time for ${status.dose}`);
+  } else if(on.length){
+    const mins = [...new Set(on.map(m => toMin(m.time)))].sort((a,b) => a-b);
+    const next = mins.find(x => x > cur) ?? mins[0] + 1440, prev = [...mins].reverse().find(x => x <= cur) ?? mins[mins.length-1] - 1440;
+    const left = Math.max(0, Math.ceil(next - cur)), nm = on.find(m => toMin(m.time) === next % 1440);
+    $('rLabel').textContent = 'NEXT DOSE IN'; $('rBig').textContent = left < 60 ? left + ' min' : Math.floor(left/60) + 'h ' + (left%60) + 'm';
+    $('rSub').textContent = `${nm.name} · ${fmt(nm.time)}`;
+    $('arc').style.strokeDashoffset = 100 - Math.max(0, Math.min(100, (cur - prev) / (next - prev) * 100));
+    $('heroMsg').textContent = online ? 'Everything is on track.' : 'Waiting for the box to wake up…';
+  } else {
+    $('rLabel').textContent = 'NO DOSES'; $('rBig').textContent = '--'; $('rSub').textContent = 'Add a medicine';
+    $('arc').style.strokeDashoffset = 100; $('heroMsg').textContent = 'Add a medicine to start reminders.';
+  }
+  $('rbName').textContent = $('rSub').textContent; $('rbTime').textContent = $('rBig').textContent; $('rbBox').textContent = online ? 'Online' : 'Offline';
+  const ne = lang === 'ne', who = profile.patient || (ne ? 'बिरामी' : 'the patient'), dz = status && status.dose;
+  const sadNow = logs.some(l => l.date === ds(n) && l.status === 'missed' && !dismissed.has(l.name + l.time));
+  const mood = alert ? 'alert' : Date.now() < moodUntil ? 'happy' : sadNow ? 'sad' : 'idle';
+  ['alert','happy','sad','idle'].forEach(c => $('mascot').classList.toggle(c, c === mood));
+  $('say').textContent = {alert: ne ? `${dz} खाने बेला भयो!` : `Time for ${dz}!`, happy: ne ? 'धन्यवाद! राम्रो गर्नुभयो 🎉' : 'Dhanyabad! Well done 🎉',
+    sad: ne ? `${who} लाई हेर्नुहोस्` : `Please check on ${who}`, idle: ne ? 'नमस्ते! म सम्झाउनेछु 🙏' : 'Namaste! I’ll remind you 🙏'}[mood];
+  const st = on.map(m => [m, doseState(m)]);
+  setNum($('sT'), st.filter(x => x[1] === 'taken').length); setNum($('sM'), st.filter(x => x[1] === 'missed').length);
+  setNum($('sU'), st.filter(x => x[1] === 'up' || x[1] === 'now').length);
+  const sk = streak(); $('streak').style.display = sk ? 'inline-flex' : 'none'; $('streak').textContent = `🔥 ${sk}-day streak · no missed doses`;
+  const L = {taken:'Taken', missed:'Missed', now:'Take now', up:'Upcoming', none:'No record'};
+  $('todayCnt').textContent = st.length + (st.length === 1 ? ' dose' : ' doses');
+  $('today').innerHTML = st.length ? st.map(([m,s]) => `<div class="ti ${s}"><span class="tm">${fmt(m.time)}</span><span class="nm">${esc(m.name)}<small>${MEAL[m.meal] || MEAL.any}</small></span><span class="tag">${L[s]}</span></div>`).join('')
+    : '<div class="empty">No doses today. Add a medicine to begin.</div>';
+}
+function renderWeek(){
+  const data = [...Array(7)].map((_,i) => { const d = new Date(Date.now() - (6-i)*864e5), k = ds(d);
+    return {l: d.toLocaleDateString([], {weekday:'short'}), t: logs.filter(l => l.date === k && l.status === 'taken').length, m: logs.filter(l => l.date === k && l.status === 'missed').length}; });
+  const T = data.reduce((a,d) => a + d.t, 0), M = data.reduce((a,d) => a + d.m, 0), max = Math.max(1, ...data.map(d => d.t + d.m));
+  $('wk').innerHTML = data.map(d => `<div class="col"><div class="bar" style="height:${d.t + d.m ? Math.max(14, (d.t+d.m)/max*100) : 6}px"><i style="flex:${d.m};background:var(--coral)"></i><i style="flex:${d.t};background:var(--teal)"></i></div>${d.l}</div>`).join('');
+  const p = T + M ? Math.round(T/(T+M)*100) : 0;
+  $('ad').style.setProperty('--p', p); $('adn').textContent = T + M ? p + '%' : '--';
+  $('adt').textContent = T + M ? `${T} taken · ${M} missed` : 'No records yet';
+}
+
+/* ---------- medicines ---------- */
+function renderMeds(){
+  $('cnt').textContent = meds.length + (meds.length === 1 ? ' dose' : ' doses');
+  const g = new Map();
+  meds.forEach((m,i) => { if(!g.has(m.name)) g.set(m.name, []); g.get(m.name).push([m,i]); });
+  $('list').innerHTML = g.size ? [...g].map(([name, arr]) => { const s = stock[keyOf(name)];
+    return `<div class="grp${name === newName ? ' new' : ''}" style="--h:${hue(name)}">
+      <div class="gh"><div class="cap"></div><div class="gn"><b>${esc(name)}</b><span>${arr.length} ${arr.length === 1 ? 'time' : 'times'} a day · ${MEAL[arr[0][0].meal] || MEAL.any}${course(arr[0][0].until)}</span></div>
+      <label class="stk">Pills left <input type="number" min="0" value="${s ?? ''}" data-s="${esc(name)}" placeholder="–">${s !== undefined && s <= LOW ? `<span class="b${s === 0 ? ' z' : ''}">${s === 0 ? 'Empty' : 'Low'}</span>` : ''}</label>
+      <button class="del" data-a="all" data-n="${esc(name)}" aria-label="Delete medicine">✕</button></div>
+      ${arr.map(([m,i]) => `<div class="row${m.on ? '' : ' off'}" data-i="${i}"><input type="time" value="${esc(m.time)}" aria-label="Time"><span class="sp">${fmt(m.time)}</span>
+        <button class="sw2${m.on ? ' on' : ''}" data-a="tog" aria-label="Enable"></button><button class="del" data-a="del" aria-label="Delete dose">✕</button></div>`).join('')}</div>`; }).join('')
+    : '<div class="card empty">No medicine yet. Add the first one above.</div>';
+  newName = null; applyLang();
+}
+$('list').onchange = e => {
+  if(e.target.dataset.s !== undefined){ toast('Stock updated'); return put('stock/' + keyOf(e.target.dataset.s), e.target.value === '' ? null : Math.max(0, +e.target.value)); }
+  const r = e.target.closest('.row'); if(r && e.target.type === 'time' && e.target.value){ meds[+r.dataset.i].time = e.target.value; save(); }
+};
+$('list').onclick = e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.a === 'all'){ meds = meds.filter(m => m.name !== b.dataset.n); toast('Removed ' + b.dataset.n); return save(); }
+  const r = b.closest('.row'); if(!r) return;
+  if(b.dataset.a === 'tog') meds[+r.dataset.i].on = !meds[+r.dataset.i].on; else meds.splice(+r.dataset.i, 1);
+  save();
+};
+$('addBtn').onclick = () => {
+  const name = $('name').value.replace(/[,;|]/g, ' ').trim().slice(0,24);
+  if(!name){ $('name').focus(); return; }
+  const days = +$('dur').value, until = days ? +ds(new Date(Date.now() + (days-1)*864e5)).replace(/-/g, '') : 0;
+  DEFAULT_TIMES[$('freq').value].forEach(t => meds.push({name, time:t, on:true, meal:$('meal').value, until}));
+  if($('pills').value !== '') put('stock/' + keyOf(name), Math.max(0, +$('pills').value));
+  newName = name; $('name').value = ''; $('pills').value = ''; save(); toast('Added ' + name);
+};
+$('name').onkeydown = e => { if(e.key === 'Enter') $('addBtn').click(); };
+
+/* ---------- history ---------- */
+function renderHistory(){
+  const y = ds(new Date(Date.now() - 864e5)), days = new Map();
+  logs.filter(l => filter === 'all' || l.status === filter).forEach(l => { if(!days.has(l.date)) days.set(l.date, []); days.get(l.date).push(l); });
+  $('hlist').innerHTML = days.size ? [...days].map(([d,a]) => `<div class="dh">${d === ds(new Date()) ? 'Today' : d === y ? 'Yesterday' : esc(d)}</div>` +
+    a.map(l => `<div class="hi"><span class="d ${esc(l.status)}"></span><div><b>${esc(l.name)}</b><small>${fmt(l.time)}</small></div><span class="tag ${esc(l.status)}">${esc(l.status)}</span></div>`).join('')).join('')
+    : '<div class="empty">No records yet. They appear after the box logs a dose.</div>';
+  $('hm').innerHTML = [...Array(28)].map((_,i) => { const k = ds(new Date(Date.now() - (27-i)*864e5)), t = dayCount(k,'taken'), m = dayCount(k,'missed');
+    return `<i title="${k}: ${t} taken, ${m} missed" style="background:${m ? (t ? '#FFB020' : '#FF5A5F') : t ? '#14C8B0' : '#E8EEF5'};animation-delay:${i*18}ms"></i>`; }).join('');
+  document.querySelectorAll('#flt [data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === filter));
+}
+$('flt').onclick = e => { if(e.target.dataset.f){ filter = e.target.dataset.f; renderHistory(); } };
+$('csv').onclick = () => {
+  const rows = ['date,time,medicine,status', ...logs.map(l => [l.date, l.time, '"' + l.name.replace(/"/g,'""') + '"', l.status].join(','))];
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([rows.join('\n')], {type:'text/csv'})); a.download = 'medbox-history.csv'; a.click();
+};
+
+/* ---------- device ---------- */
+function renderDevice(){
+  const r = status && typeof status.rssi === 'number' ? status.rssi : null, bars = !online || r === null ? 0 : r > -60 ? 4 : r > -70 ? 3 : r > -80 ? 2 : 1;
+  $('dvState').textContent = !online ? 'Offline' : status.state === 'alert' ? 'Reminding now' : 'Online · idle';
+  $('dvSeen').textContent = lastUpdate ? timeAgo(lastUpdate) : '--';
+  $('dvWifi').innerHTML = `<span class="wf">${[1,2,3,4].map(i => `<i class="${i <= bars ? 'on' : ''}" style="height:${6 + i*4}px"></i>`).join('')}</span>${online && r !== null ? r + ' dBm' : '--'}`;
+  if(document.activeElement !== $('patient')) $('patient').value = profile.patient || '';
+}
+$('patient').onchange = e => { toast('Name saved'); put('profile/patient', e.target.value.trim().slice(0,24) || null); };
+function fillSettings(){
+  if($('setCard').contains(document.activeElement)) return;
+  $('sRepeat').value = settings.repeat; $('sSnooze').value = settings.snooze; $('sMissed').value = settings.missed; $('sHold').value = settings.hold;
+  $('sVol').value = settings.volume; $('sPhone').value = settings.phone; $('sSms').classList.toggle('on', !!settings.sms);
+}
+$('sSms').onclick = e => e.currentTarget.classList.toggle('on');
+$('sSave').onclick = () => {
+  const n = (id, lo, hi) => Math.min(hi, Math.max(lo, +$(id).value || lo));
+  put('settings', {repeat:n('sRepeat',1,30), snooze:n('sSnooze',1,60), missed:n('sMissed',5,180), hold:n('sHold',3,10), volume:n('sVol',0,30),
+    sms:$('sSms').classList.contains('on') ? 1 : 0, phone:$('sPhone').value.replace(/[^+\d]/g, '')});
+  toast('Settings saved. The box updates within 30 seconds.');
+};
+
+function rAll(){ renderBanners(); renderHero(); renderWeek(); renderHistory(); renderDevice(); applyLang(); }
+setInterval(() => { renderHero(); renderDevice(); applyLang(); }, 10000);
+
+/* ---------- Firebase ---------- */
+const base = 'https://www.gstatic.com/firebasejs/10.12.2/';
+const [{initializeApp}, {getDatabase, ref, onValue, set, query, limitToLast}] =
+  await Promise.all([import(base+'firebase-app.js'), import(base+'firebase-database.js')]);
+const db = getDatabase(initializeApp(firebaseConfig));
+
+save = () => {
+  meds.sort((a,b) => a.time.localeCompare(b.time));
+  // "packed" is the tiny string the ESP32 keeps in flash: "HH:MM,name,1;HH:MM,name,0"
+  const packed = meds.map(m => `${m.time},${m.name},${m.on ? 1 : 0},${m.until || 0}`).join(';') || '-';
+  set(ref(db, BASE + '/schedule'), {items: meds, packed, updated: Date.now()});
+};
+put = (path, v) => set(ref(db, BASE + '/' + path), v);
+onValue(ref(db, '.info/connected'), s => { if(!s.val()) setConn(false, true); });
+onValue(ref(db, BASE + '/schedule/items'), s => { meds = Object.values(s.val() || {}); renderMeds(); rAll(); });
+onValue(ref(db, BASE + '/stock'), s => { stock = s.val() || {}; renderMeds(); rAll(); });
+onValue(ref(db, BASE + '/profile'), s => { profile = s.val() || {}; rAll(); });
+onValue(ref(db, BASE + '/settings'), s => { settings = Object.assign(settings, s.val() || {}); fillSettings(); });
+onValue(query(ref(db, BASE + '/logs'), limitToLast(300)), s => { logs = Object.values(s.val() || {}).reverse(); const n = dayCount(ds(new Date()), 'taken'); if(prevTaken !== null && n > prevTaken) celebrate(); prevTaken = n; rAll(); });
+onValue(ref(db, BASE + '/status'), s => {
+  const d = s.val(); status = d;
+  if(!seen){ seen = true; firstAt = Date.now(); lastBeat = d ? d.beat : undefined; rAll(); return; }
+  if(d && d.beat !== lastBeat){ lastBeat = d.beat; lastUpdate = Date.now(); setConn(true); }
+  rAll();
+});
+document.querySelector('.hero').addEventListener('pointermove', e => { const h = e.currentTarget, r = h.getBoundingClientRect(); h.style.setProperty('--mx', e.clientX - r.left + 'px'); h.style.setProperty('--my', e.clientY - r.top + 'px'); });
+const CAPS = [['Reminds you on time','समयमै सम्झाउँछ'],['Speaks every reminder aloud','बोलेर सम्झाउँछ'],['Hold green to confirm','हरियो बटन थिचेर पुष्टि'],['SMS to family if missed','छुटे परिवारलाई SMS']];
+let capI = 0, paused = false;
+function cap(keep){ if(!keep) capI = (capI + 1) % CAPS.length; const c = CAPS[capI], ne = lang === 'ne';
+  $('capT').textContent = c[ne ? 1 : 0]; $('capS').textContent = c[ne ? 0 : 1]; $('capN').textContent = (capI + 1) + ' / ' + CAPS.length;
+  const e = $('cap'); e.classList.remove('sw'); void e.offsetWidth; e.classList.add('sw'); }
+setInterval(() => { if(!paused) cap(); }, 3500);
+$('pp').onclick = () => { paused = !paused; $('mascot').classList.toggle('paused', paused); $('pp').textContent = paused ? '▶' : '❚❚'; };
+$('kb').src = document.querySelector('.photo img').src;
+function syncLang(){ document.documentElement.lang = lang; $('lang').classList.toggle('ne', lang === 'ne'); document.querySelectorAll('#lang button').forEach(b => b.classList.toggle('on', b.dataset.l === lang)); }
+$('lang').onclick = e => { const b = e.target.closest('button'); if(!b || b.dataset.l === lang) return; lang = b.dataset.l; try{ localStorage.setItem('mb-lang', lang); }catch(x){} syncLang(); renderMeds(); rAll(); go(page); cap(true); };
+syncLang(); cap(true);
+go(location.hash.slice(1)); renderMeds(); rAll();
+</script>
+</body>
+</html>

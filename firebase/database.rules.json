@@ -1,0 +1,48 @@
+﻿{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "medbox": {
+      "box1": {
+        ".read": false,
+        ".write": false,
+        "status": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && auth.uid === 'DEVICE_UID_HERE'"
+        },
+        "logs": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && auth.uid === 'DEVICE_UID_HERE'"
+        },
+        "events": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && auth.uid === 'DEVICE_UID_HERE'"
+        },
+        "schedule": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && auth.uid === 'DASHBOARD_UID_HERE'"
+        },
+        "settings": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && auth.uid === 'DASHBOARD_UID_HERE'"
+        },
+        "profile": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && auth.uid === 'DASHBOARD_UID_HERE'"
+        },
+        "stock": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && auth.uid === 'DASHBOARD_UID_HERE'"
+        },
+        "commands": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')"
+        },
+        "sync": {
+          ".read": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')",
+          ".write": "auth != null && (auth.uid === 'DEVICE_UID_HERE' || auth.uid === 'DASHBOARD_UID_HERE')"
+        }
+      }
+    }
+  }
+}
